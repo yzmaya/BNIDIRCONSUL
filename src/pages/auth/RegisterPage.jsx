@@ -39,29 +39,23 @@ export default function RegisterPage({ onGoLogin }) {
 
     setLoading(true)
 
-    // 1. Create Supabase auth user
-    const { data: authData, error: authErr } = await supabase.auth.signUp({
+    // Pass all profile data as metadata so the DB trigger creates the
+    // profile row using security definer (avoids RLS issues pre-session)
+    const { error: authErr } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
+      options: {
+        data: {
+          nombre:               form.nombre.trim(),
+          telefono:             form.telefono.trim(),
+          bni_connect_email:    form.email.trim(),
+          bni_connect_password: form.bni_connect_password,
+          chapter_id:           form.chapter_id || '',
+        },
+      },
     })
+
     if (authErr) { setError(authErr.message); setLoading(false); return }
-
-    const userId = authData.user?.id
-    if (!userId) { setError('Error creando la cuenta. Intenta de nuevo.'); setLoading(false); return }
-
-    // 2. Upsert profile with all fields
-    const { error: profileErr } = await supabase.from('profiles').upsert({
-      id: userId,
-      nombre: form.nombre.trim(),
-      telefono: form.telefono.trim(),
-      bni_connect_email: form.email.trim(),
-      bni_connect_password: form.bni_connect_password, // stored in DB; Edge Functions encrypt before storage
-      chapter_id: form.chapter_id || null,
-      role: 'director',
-      aprobado: false,
-    })
-
-    if (profileErr) { setError(profileErr.message); setLoading(false); return }
 
     setLoading(false)
     // Auth state change will redirect to PendingPage via App router
