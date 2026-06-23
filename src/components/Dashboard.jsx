@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import {
   DollarSign, Users, Share2, CalendarCheck, UserPlus,
-  BookOpen, Settings, Upload, TrendingUp, Award
+  BookOpen, Settings, Upload, TrendingUp, Award, LogOut, Shield
 } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 import { DEFAULT_GOALS, calcChapterStats, buildSuggestions, fmtCurrency } from '../utils/bniMetrics'
 import KPICard from './KPICard'
 import MemberTable from './MemberTable'
@@ -23,7 +24,8 @@ function ChartCard({ title, children }) {
   )
 }
 
-export default function Dashboard({ data, onReset }) {
+export default function Dashboard({ data, onReset, profile, onGoAdmin }) {
+  const { signOut } = useAuth()
   const { meta, members } = data
   const [goals, setGoals] = useState(DEFAULT_GOALS)
   const [reuniones, setReuniones] = useState(meta.reuniones || 3)
@@ -79,6 +81,12 @@ export default function Dashboard({ data, onReset }) {
           )}
 
           <div className="ml-auto flex items-center gap-2">
+            {onGoAdmin && (
+              <button onClick={onGoAdmin}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium">
+                <Shield className="w-4 h-4" /> Admin
+              </button>
+            )}
             <button
               onClick={() => setShowSettings(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -90,6 +98,10 @@ export default function Dashboard({ data, onReset }) {
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               <Upload className="w-4 h-4" /> Nuevo archivo
+            </button>
+            <button onClick={signOut}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>

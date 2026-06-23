@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Upload, FileSpreadsheet, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, FileSpreadsheet, AlertCircle, Loader2, LogOut, Shield } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
-export default function FileUpload({ onParsed }) {
+export default function FileUpload({ onParsed, profile, onGoAdmin }) {
+  const { signOut } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -41,8 +43,34 @@ export default function FileUpload({ onParsed }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-      <div className="max-w-lg w-full">
-        {/* Logo / Brand */}
+      {/* Top bar */}
+      <div className="fixed top-0 inset-x-0 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center justify-between z-20">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-red-600 flex items-center justify-center">
+            <span className="text-white font-bold text-xs">BNI</span>
+          </div>
+          <span className="text-sm font-medium text-gray-700">
+            Hola, {profile?.nombre?.split(' ')[0] || 'Director'}
+          </span>
+          {profile?.chapters?.nombre && (
+            <span className="text-xs text-gray-400">· {profile.chapters.nombre}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {onGoAdmin && (
+            <button onClick={onGoAdmin}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium">
+              <Shield className="w-3.5 h-3.5" /> Admin
+            </button>
+          )}
+          <button onClick={signOut}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+            <LogOut className="w-3.5 h-3.5" /> Salir
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-lg w-full mt-12">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-600 shadow-lg mb-4">
             <span className="text-white font-bold text-2xl">BNI</span>
